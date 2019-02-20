@@ -10,7 +10,7 @@ function max(array, size) {
   return (maximum);
 }
 
-class units { // ADD AGE FOR EACH UNIT !
+class units {
   constructor(nbUnits, nbVectors, nbPoints, vector, vectorBase) {
     this.nbUnits = nbUnits;
     this.nbVectors = nbVectors;
@@ -32,7 +32,7 @@ class units { // ADD AGE FOR EACH UNIT !
     this.vectorBase = vectorBase;
   }
 
-  sort() { // TO DO //Bon vieux tribulle pour gain de temps de dev
+  sort() {
     let tmp = 0;
     for (let i = 0; i < this.nbUnits; i++) {
       for (let j = 1; j < this.nbUnits; j++) {
@@ -54,8 +54,8 @@ class units { // ADD AGE FOR EACH UNIT !
   }
 }
 
-function randIni(units, u, version) { // Most important part
-  if (version === 0) { // Full rand = bad idea, but to test
+function randIni(units, u, version) {
+  if (version === 0) {
     for (let v = 0; v < units.nbVectors; v++) {
       units.map[u][v] = Math.floor(Math.random() * (max(units.vector) + 2));
     }
@@ -66,8 +66,7 @@ function randIni(units, u, version) { // Most important part
   units.mark[u] = 0;
 }
 
-function mark(units, unit) { // MAYBE BETTER DOING ORTH PROJ BEFORE
-  // console.log("MARK", units.map[unit]);
+function mark(units, unit) {
   let tmpMark = 0;
   let tmpVector = [];
   for (let i = 0; i < units.nbPoints; i++) {
@@ -80,24 +79,19 @@ function mark(units, unit) { // MAYBE BETTER DOING ORTH PROJ BEFORE
       }
     }
   }
-  // console.log("tmp", tmpVector, "obj", units.vector);
   for (let p = 0; p < units.nbPoints; p++) {
-    tmpMark += Math.abs(units.vector[p] - tmpVector[p]); // AND WHEN NEGATIVE ????
+    tmpMark += Math.abs(units.vector[p] - tmpVector[p]);
   }
-  // console.log("error", tmpMark);
   units.mark[unit] = tmpMark;
 }
 
-function selection(units) { // PLUS DE CHANCE D'ETRE PRIX SI ERROR HAUTE !!!! ESPECE DE GUILLAUME
+function selection(units) {
   let sum = 0;
 
-  let maximum = max(units.mark, units.nbUnits); // On inverse les chances
+  let maximum = max(units.mark, units.nbUnits);
   for (let u = 0; u < units.nbUnits; u++) {
     units.mark[u] = maximum - units.mark[u];
   }
-  // console.log(maximum)
-  // console.log("mark", units.mark);
-
   for (let u = 0; u < units.nbUnits; u++) {
     sum += units.mark[u];
   }
@@ -110,7 +104,7 @@ function selection(units) { // PLUS DE CHANCE D'ETRE PRIX SI ERROR HAUTE !!!! ES
   if (r < 0) {
     selected -= 1;
   }
-  if (selected >= units.nbUnits) { // SOLVE THIS CASE PROPERLY
+  if (selected >= units.nbUnits) {
     selected = units.nbUnits - 1;
   }
 
@@ -118,16 +112,12 @@ function selection(units) { // PLUS DE CHANCE D'ETRE PRIX SI ERROR HAUTE !!!! ES
   for (let u = 0; u < units.nbUnits; u++) {
     mark(units, u);
   }
-  // console.log("after remark", units.mark);
   return (selected);
 }
 
-function reproduction(units, nextUnits, father, mother, u) { // TO DO
+function reproduction(units, nextUnits, father, mother, u) {
   let tmpVector = [];
   let r = Math.floor(Math.random() * (2));
-  // console.log("R", r);
-  // console.log("father", father, units.map[father]);
-  // console.log("mother", mother, units.map[mother]);
   if (r === 0) {
     for (let v = 0; v < Math.floor(units.nbVectors / 2); v++) {
       tmpVector.push(units.map[father][v]);
@@ -166,7 +156,7 @@ function merge(units, nextUnits) {
 
 function eugenisme(units) {
   units.sort();
-  for (let u = units.nbUnits / 2; u < units.nbUnits; u++) { // BE MORE GENERAL
+  for (let u = units.nbUnits / 2; u < units.nbUnits; u++) {
     units.map.pop();
     units.age.pop();
     units.mark.pop();
@@ -210,9 +200,6 @@ export function positiveLinearDep(nbUnits, time, vectorM, vectorBaseM) {
   for (let u = 0; u < nbUnits; u++) {
     randIni(unitsTab, u, 0);
   }
-  // console.log("INI :");
-  // console.table(unitsTab.map);
-
   for (let year = 0; year < time; year++) {
     for (let unit = 0; unit < nbUnits; unit++) {
       mark(unitsTab, unit);
@@ -223,16 +210,11 @@ export function positiveLinearDep(nbUnits, time, vectorM, vectorBaseM) {
         return (solution);
       }
     }
-    // console.log("-------------------- YEAR", year + 1, "--------------------");
-    // console.log("---------- > MARK :")
-    // console.table(unitsTab.mark);
     let nextUnits = new units(nbUnits, nbVectors, vector);
     for (let u = 0; u < nbUnits; u++) {
       let father = selection(unitsTab);
       let mother = selection(unitsTab);
       reproduction(unitsTab, nextUnits, father, mother, u);
-      // console.log("CHILD");
-      // console.log(nextUnits.map[u]);
     }
     for (let unit = 0; unit < nextUnits.nbUnits; unit++) {
       mark(nextUnits, unit);
@@ -247,8 +229,6 @@ export function positiveLinearDep(nbUnits, time, vectorM, vectorBaseM) {
     unitsTab.sort();
 
     bestMarkPerYear[year] = unitsTab.mark[0];
-    // console.log("---------- > NEW MAP :");
-    // console.table(unitsTab.map);
   }
   for (let i = 0; i < nbVectors; i++) {
     solution[i] = unitsTab.map[0][i];
